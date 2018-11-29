@@ -21,29 +21,29 @@ class final_topo(Topo):
     core_1 = self.addSwitch('core_1')
     data_1 = self.addSwitch('data_1')
 
-    #For communication from host to switch use host number for host port and floor number for switch port
-    # self.addLink(h10, floor_1, port1=10, port2=1)
-    # self.addLink(h20, floor_2, port1=20, port2=2)
-    # self.addLink(h30, floor_3, port1=30, port2=3)
-    self.addLink(h10, floor_1)
-    self.addLink(h20, floor_2)
-    self.addLink(h30, floor_3)
+    #For communication from host to switch use host number for host port and 1 for the switch port
+    self.addLink(h10, floor_1, port1=0, port2=1)
+    self.addLink(h20, floor_2, port1=0, port2=1)
+    self.addLink(h30, floor_3, port1=0, port2=1)
+    # self.addLink(h10, floor_1)
+    # self.addLink(h20, floor_2)
+    # self.addLink(h30, floor_3)
     # Use port 100 to connect to the core switch and use port equal to floor num for core to switch
-    # self.addLink(floor_1, core_1, port1=100, port2=1)
-    # self.addLink(floor_2, core_1, port1=100, port2=2)
-    # self.addLink(floor_3, core_1, port1=100, port2=3)
-    self.addLink(floor_1, core_1)
-    self.addLink(floor_2, core_1)
-    self.addLink(floor_3, core_1)
-    # port 100 to connect to core port 666 to connect to untrusted
-    # self.addLink(untrusth, core_1, port1=100, port2=666)
-    self.addLink(untrusth, core_1)
-    # use port 101 to connect to data center and 100 to connect to core switch
-    # self.addLink(data_1, core_1, port1=100, port2=101)
-    self.addLink(data_1, core_1)
-    # use port 1 to connect to server 1 and port 101 to connect to data center switch
-    # self.addLink(server_1, data_1, port1=101, port2=1)
-    self.addLink(server_1, data_1)
+    self.addLink(floor_1, core_1, port1=100, port2=1)
+    self.addLink(floor_2, core_1, port1=100, port2=2)
+    self.addLink(floor_3, core_1, port1=100, port2=3)
+    # self.addLink(floor_1, core_1)
+    # self.addLink(floor_2, core_1)
+    # self.addLink(floor_3, core_1)
+    # port 100 to connect to core, port 4 to connect to untrusted
+    self.addLink(untrusth, core_1, port1=0, port2=4)
+    # self.addLink(untrusth, core_1)
+    # use port 100 to connect to core switch and 5 to connect to data center
+    self.addLink(data_1, core_1, port1=1, port2=5)
+    # self.addLink(data_1, core_1)
+    # use port 1 to connect to server 1 and port 100 to connect to data center switch
+    self.addLink(server_1, data_1, port1=0, port2=2)
+    # self.addLink(server_1, data_1)
 
 def configure():
   topo = final_topo()
