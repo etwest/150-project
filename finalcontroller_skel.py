@@ -35,6 +35,14 @@ class Final (object):
 
     # This binds our PacketIn event listener
     connection.addListeners(self)
+  
+  def send_packet (self, packet_in):
+    msg = of.ofp_packet_out()
+    msg.data = packet_in
+
+    action = of.ofp_action_output(port=of.OFPP_ALL)
+    msg.actions.append(action)
+    self.connection.send(msg) 
 
   def do_final (self, packet, packet_in, port_on_switch, switch_id):
     # This is where you'll put your code. The following modifications have 
@@ -42,7 +50,8 @@ class Final (object):
     #   - port_on_switch represents the port that the packet was received on.
     #   - switch_id represents the id of the switch that received the packet
     #      (for example, s1 would have switch_id == 1, s2 would have switch_id == 2, etc...)
-    print "Hello, World!"
+    print switch_id
+    self.send_packet(packet_in)
 
   def _handle_PacketIn (self, event):
     """
