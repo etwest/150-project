@@ -68,15 +68,17 @@ class Final (object):
       #This time it depends on the destination ip address
       if str(packet.dst) == '00:00:00:00:00:01':
         self.send_packet(packet_in, 1)
-      if str(packet.dst) == '00:00:00:00:00:02':
+      elif str(packet.dst) == '00:00:00:00:00:02':
         self.send_packet(packet_in, 2)
-      if str(packet.dst) == '00:00:00:00:00:03':
+      elif str(packet.dst) == '00:00:00:00:00:03':
         self.send_packet(packet_in, 3)
-      if str(packet.dst) == '00:00:00:00:00:04':
+      elif str(packet.dst) == '00:00:00:00:00:04':
         self.send_packet(packet_in, 4)
-      if str(packet.dst) == '00:00:00:00:00:05':
+      elif str(packet.dst) == '00:00:00:00:00:05':
         self.send_packet(packet_in, 5)
-    
+      else:
+        print('weird packet')
+        self.send_packet(packet_in, of.OFPP_FLOOD)
     #do something with data center switch
     else:
       #if comes in on port 100 send out port 1 and other way around
