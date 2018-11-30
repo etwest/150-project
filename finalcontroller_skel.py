@@ -64,7 +64,7 @@ class Final (object):
         self.send_packet(packet_in, 100)
     
     #do something with core switch
-    else if switch_id == 4:
+    elif switch_id == 4:
       print('core')
       #This time it depends on the destination ip address
       self.send_packet(packet_in, of.OFPP_ALL)
