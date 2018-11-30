@@ -20,6 +20,7 @@
 
 from pox.core import core
 import pox.openflow.libopenflow_01 as of
+import pox.lib.packet as pkt
 
 log = core.getLogger()
 
@@ -51,7 +52,7 @@ class Final (object):
     #   - switch_id represents the id of the switch that received the packet
     #      (for example, s1 would have switch_id == 1, s2 would have switch_id == 2, etc...)
     
-    #Put the relevant flow tables into the switch depending on it's type
+    #route or drop packets depending on which switch they are arriving at
     #do something with floor switches
     if switch_id <= 3:
       #If comes in on port 100 use port 1 to send or other way around
@@ -61,12 +62,39 @@ class Final (object):
       else:
         print "Floor switch_"+str(switch_id)+" got packet on port: "+str(port_on_switch)+". Sending out on port 100"
         self.send_packet(packet_in, 100)
+      # push the flow table for this information to the floor switch
+      fm = of.ofp_flow_mod()
+      fm.priority = 5
+      fm.idle_timeout = 15
+      fm.hard_timeout = 45
+      fm.match.in_port = 100
+      fm.actions.append(of.ofp_action_output(port=1))
+      self.connection.send(fm)
+      fm = of.ofp_flow_mod()
+      fm.priority = 5
+      fm.idle_timeout = 15
+      fm.hard_timeout = 45
+      fm.match.in_port = 1
+      fm.actions.append(of.ofp_action_output(port=100))
+      self.connection.send(fm)
     
-    #do something with core switch
+    ####################### core switch #########################
     elif switch_id == 4:
-      #This time it depends on the destination ip address
+      #ip packets need to be occasionally blocked and are routed to specific ports
       if packet.find('ipv4'):
         print("core: ip packet")
+        if str(packet.src) == '00:00:00:00:00:05':
+          #This originated from the untrusted host so we block some traffic
+          if str(packet.dst) == '00:00:00:00:00:04': #cannot send any ip to server
+            print 'Dropping packet from 05 bound for 04'
+            msg = of.ofp_packet_out()
+            self.connection.send(msg)
+            return
+          if packet.find('icmp'): #untrusted cannot send icmp so block that
+            print 'Dropping icmp packet from 05'
+            msg = of.ofp_packet_out()
+            self.connection.send(msg)
+            return
         if str(packet.dst) == '00:00:00:00:00:01':
           self.send_packet(packet_in, 1)
         elif str(packet.dst) == '00:00:00:00:00:02':
@@ -91,6 +119,21 @@ class Final (object):
       else:
         print "Data Center got packet on port: "+str(port_on_switch)+". Sending out on port 100"
         self.send_packet(packet_in, 100)
+      #install flow tables to data center switch that deal with this information
+      fm = of.ofp_flow_mod()
+      fm.priority = 5
+      fm.idle_timeout = 15
+      fm.hard_timeout = 45
+      fm.match.in_port = 100
+      fm.actions.append(of.ofp_action_output(port=1))
+      self.connection.send(fm)
+      fm = of.ofp_flow_mod()
+      fm.priority = 5
+      fm.idle_timeout = 15
+      fm.hard_timeout = 45
+      fm.match.in_port = 1
+      fm.actions.append(of.ofp_action_output(port=100))
+      self.connection.send(fm)
 
   def _handle_PacketIn (self, event):
     """
