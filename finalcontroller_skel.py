@@ -61,10 +61,12 @@ class Final (object):
       else:
         print "Floor switch_"+str(switch_id)+" got packet on port: "+str(port_on_switch)+". Sending out on port 100"
         self.send_packet(packet_in, 100)
+    
     #do something with core switch
     else if switch_id == 4:
       #This time it depends on the destination ip address
-
+      self.send_packet(packet_in, of.OFPP_ALL)
+    
     #do something with data center switch
     else:
       #if comes in on port 100 send out port 1 and other way around
@@ -74,8 +76,6 @@ class Final (object):
       else:
         print "Data Center got packet on port: "+str(port_on_switch)+". Sending out on port 100"
         self.send_packet(packet_in, 100)
-
-    self.send_packet(packet_in, of.OFPP_ALL)
 
   def _handle_PacketIn (self, event):
     """
