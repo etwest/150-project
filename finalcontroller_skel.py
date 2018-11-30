@@ -66,18 +66,20 @@ class Final (object):
     elif switch_id == 4:
       print('core')
       #This time it depends on the destination ip address
-      if str(packet.dst) == '00:00:00:00:00:01':
-        self.send_packet(packet_in, 1)
-      elif str(packet.dst) == '00:00:00:00:00:02':
-        self.send_packet(packet_in, 2)
-      elif str(packet.dst) == '00:00:00:00:00:03':
-        self.send_packet(packet_in, 3)
-      elif str(packet.dst) == '00:00:00:00:00:04':
-        self.send_packet(packet_in, 4)
-      elif str(packet.dst) == '00:00:00:00:00:05':
-        self.send_packet(packet_in, 5)
+      if packet.find('ip'):
+        if str(packet.dst) == '00:00:00:00:00:01':
+          self.send_packet(packet_in, 1)
+        elif str(packet.dst) == '00:00:00:00:00:02':
+          self.send_packet(packet_in, 2)
+        elif str(packet.dst) == '00:00:00:00:00:03':
+          self.send_packet(packet_in, 3)
+        elif str(packet.dst) == '00:00:00:00:00:04':
+          self.send_packet(packet_in, 4)
+        elif str(packet.dst) == '00:00:00:00:00:05':
+          self.send_packet(packet_in, 5)
+        else:
+          print('error, bad IP packet') 
       else:
-        print('weird packet')
         self.send_packet(packet_in, of.OFPP_FLOOD)
     #do something with data center switch
     else:
