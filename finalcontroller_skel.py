@@ -36,11 +36,11 @@ class Final (object):
     # This binds our PacketIn event listener
     connection.addListeners(self)
   
-  def send_packet (self, packet_in):
+  def send_packet (self, packet_in, port_out):
     msg = of.ofp_packet_out()
     msg.data = packet_in
 
-    action = of.ofp_action_output(port=of.OFPP_ALL)
+    action = of.ofp_action_output(port=port_out)
     msg.actions.append(action)
     self.connection.send(msg) 
 
@@ -51,7 +51,31 @@ class Final (object):
     #   - switch_id represents the id of the switch that received the packet
     #      (for example, s1 would have switch_id == 1, s2 would have switch_id == 2, etc...)
     print switch_id
-    self.send_packet(packet_in)
+    #Put the relevant flow tables into the switch depending on it's type
+    #do something with floor switches
+    if switch_id <= 3:
+      #If comes in on port 100 use port 1 to send or other way around
+      if( port_on_switch == 100):
+        print "Floor switch_"+str(switch_id)+" got packet on port: 100. Sending out on port 1"
+        self.send_packet(packet_in, 1)
+      else:
+        print "Floor switch_"+str(switch_id)+" got packet on port: "+str(port_on_switch)+". Sending out on port 100"
+        self.send_packet(packet_in, 100)
+    #do something with core switch
+    else if switch_id == 4:
+      #This time it depends on the destination ip address
+
+    #do something with data center switch
+    else:
+      #if comes in on port 100 send out port 1 and other way around
+      if( port_on_switch == 100):
+        print "Data Center got packet on port: 100. Sending out on port 1"
+        self.send_packet(packet_in, 1)
+      else:
+        print "Data Center got packet on port: "+str(port_on_switch)+". Sending out on port 100"
+        self.send_packet(packet_in, 100)
+
+    self.send_packet(packet_in, of.OFPP_ALL)
 
   def _handle_PacketIn (self, event):
     """
