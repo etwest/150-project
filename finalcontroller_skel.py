@@ -50,11 +50,10 @@ class Final (object):
     #   - port_on_switch represents the port that the packet was received on.
     #   - switch_id represents the id of the switch that received the packet
     #      (for example, s1 would have switch_id == 1, s2 would have switch_id == 2, etc...)
-    print switch_id
+    
     #Put the relevant flow tables into the switch depending on it's type
     #do something with floor switches
     if switch_id <= 3:
-      print('floor')
       #If comes in on port 100 use port 1 to send or other way around
       if( port_on_switch == 100):
         print "Floor switch_"+str(switch_id)+" got packet on port: 100. Sending out on port 1"
@@ -67,11 +66,19 @@ class Final (object):
     elif switch_id == 4:
       print('core')
       #This time it depends on the destination ip address
-      self.send_packet(packet_in, of.OFPP_ALL)
+      if str(packet.dst) == '00:00:00:00:00:01':
+        self.send_packet(packet_in, 1)
+      if str(packet.dst) == '00:00:00:00:00:02':
+        self.send_packet(packet_in, 2)
+      if str(packet.dst) == '00:00:00:00:00:03':
+        self.send_packet(packet_in, 3)
+      if str(packet.dst) == '00:00:00:00:00:04':
+        self.send_packet(packet_in, 4)
+      if str(packet.dst) == '00:00:00:00:00:05':
+        self.send_packet(packet_in, 5)
     
     #do something with data center switch
     else:
-      print('data center')
       #if comes in on port 100 send out port 1 and other way around
       if( port_on_switch == 100):
         print "Data Center got packet on port: 100. Sending out on port 1"
