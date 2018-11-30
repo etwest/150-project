@@ -26,14 +26,14 @@ class final_topo(Topo):
     self.addLink(h10, floor_1, port1=0, port2=1)
     self.addLink(h20, floor_2, port1=0, port2=1)
     self.addLink(h30, floor_3, port1=0, port2=1)
-    self.addLink(untrusth, core, port1=0, port2=1)
+    self.addLink(untrusth, core, port1=0, port2=5)
     self.addLink(server_1, data, port1=0, port2=1)
 
     #Link switches
-    self.addLink(floor_1, core, port1=100, port2=2)
-    self.addLink(floor_2, core, port1=100, port2=3)
-    self.addLink(floor_3, core, port1=100, port2=4)
-    self.addLink(data, core, port1=100, port2=5)
+    self.addLink(floor_1, core, port1=100, port2=1)
+    self.addLink(floor_2, core, port1=100, port2=2)
+    self.addLink(floor_3, core, port1=100, port2=3)
+    self.addLink(data, core, port1=100, port2=4)
 
 
 def configure():
