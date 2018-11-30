@@ -67,6 +67,7 @@ class Final (object):
       print('core')
       #This time it depends on the destination ip address
       if packet.find('ip'):
+        print("core: ip packet")
         if str(packet.dst) == '00:00:00:00:00:01':
           self.send_packet(packet_in, 1)
         elif str(packet.dst) == '00:00:00:00:00:02':
@@ -80,6 +81,7 @@ class Final (object):
         else:
           print('error, bad IP packet') 
       else:
+        print("core: non ip packet")
         self.send_packet(packet_in, of.OFPP_FLOOD)
     #do something with data center switch
     else:
