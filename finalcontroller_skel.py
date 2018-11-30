@@ -54,6 +54,7 @@ class Final (object):
     #Put the relevant flow tables into the switch depending on it's type
     #do something with floor switches
     if switch_id <= 3:
+      print('floor')
       #If comes in on port 100 use port 1 to send or other way around
       if( port_on_switch == 100):
         print "Floor switch_"+str(switch_id)+" got packet on port: 100. Sending out on port 1"
@@ -64,11 +65,13 @@ class Final (object):
     
     #do something with core switch
     else if switch_id == 4:
+      print('core')
       #This time it depends on the destination ip address
       self.send_packet(packet_in, of.OFPP_ALL)
     
     #do something with data center switch
     else:
+      print('data center')
       #if comes in on port 100 send out port 1 and other way around
       if( port_on_switch == 100):
         print "Data Center got packet on port: 100. Sending out on port 1"
