@@ -64,9 +64,8 @@ class Final (object):
     
     #do something with core switch
     elif switch_id == 4:
-      print('core')
       #This time it depends on the destination ip address
-      if packet.find('ip'):
+      if packet.type == ethernet.IP_TYPE:
         print("core: ip packet")
         if str(packet.dst) == '00:00:00:00:00:01':
           self.send_packet(packet_in, 1)
