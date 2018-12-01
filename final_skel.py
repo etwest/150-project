@@ -10,8 +10,8 @@ from mininet.node import RemoteController
 class final_topo(Topo):
   def build(self):
     h10 = self.addHost('h10',mac='00:00:00:00:00:01',ip='10.0.1.10/24', defaultRoute="h10-eth0")
-    h20 = self.addHost('h20',mac='00:00:00:00:00:02',ip='10.0.1.20/24', defaultRoute="h20-eth0")
-    h30 = self.addHost('h30',mac='00:00:00:00:00:03',ip='10.0.1.30/24', defaultRoute="h30-eth0")
+    h20 = self.addHost('h20',mac='00:00:00:00:00:02',ip='10.0.2.20/24', defaultRoute="h20-eth0")
+    h30 = self.addHost('h30',mac='00:00:00:00:00:03',ip='10.0.3.30/24', defaultRoute="h30-eth0")
     server_1 = self.addHost('server_1',mac='00:00:00:00:00:04',ip='10.0.4.10/24', defaultRoute="server_1-eth0")
     untrusth = self.addHost('untrusth',mac='00:00:00:00:00:05',ip='172.16.10.100/24', defaultRoute="untrusth-eth0")
     # Create a switches (each needs a unique numeric component

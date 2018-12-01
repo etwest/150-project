@@ -65,14 +65,12 @@ class Final (object):
       # push the flow table for this information to the floor switch
       fm = of.ofp_flow_mod()
       fm.priority = 5
-      fm.idle_timeout = 15
       fm.hard_timeout = 45
       fm.match.in_port = 100
       fm.actions.append(of.ofp_action_output(port=1))
       self.connection.send(fm)
       fm = of.ofp_flow_mod()
       fm.priority = 5
-      fm.idle_timeout = 15
       fm.hard_timeout = 45
       fm.match.in_port = 1
       fm.actions.append(of.ofp_action_output(port=100))
@@ -82,6 +80,7 @@ class Final (object):
     elif switch_id == 4:
       #ip packets need to be occasionally blocked and are routed to specific ports
       if packet.find('ipv4'):
+        skip = False
         print("core: ip packet")
         if str(packet.src) == '00:00:00:00:00:05':
           #This originated from the untrusted host so we block some traffic
@@ -89,27 +88,65 @@ class Final (object):
             print 'Dropping packet from 05 bound for 04'
             msg = of.ofp_packet_out()
             self.connection.send(msg)
-            return
+            skip = True
           if packet.find('icmp'): #untrusted cannot send icmp so block that
             print 'Dropping icmp packet from 05'
             msg = of.ofp_packet_out()
             self.connection.send(msg)
-            return
-        if str(packet.dst) == '00:00:00:00:00:01':
-          self.send_packet(packet_in, 1)
-        elif str(packet.dst) == '00:00:00:00:00:02':
-          self.send_packet(packet_in, 2)
-        elif str(packet.dst) == '00:00:00:00:00:03':
-          self.send_packet(packet_in, 3)
-        elif str(packet.dst) == '00:00:00:00:00:04':
-          self.send_packet(packet_in, 4)
-        elif str(packet.dst) == '00:00:00:00:00:05':
-          self.send_packet(packet_in, 5)
-        else:
-          print('error, bad IP packet') 
+            skip = True
+        if skip == False:
+          if str(packet.dst) == '00:00:00:00:00:01':
+            self.send_packet(packet_in, 1)
+          elif str(packet.dst) == '00:00:00:00:00:02':
+            self.send_packet(packet_in, 2)
+          elif str(packet.dst) == '00:00:00:00:00:03':
+            self.send_packet(packet_in, 3)
+          elif str(packet.dst) == '00:00:00:00:00:04':
+            self.send_packet(packet_in, 4)
+          elif str(packet.dst) == '00:00:00:00:00:05':
+            self.send_packet(packet_in, 5)
+          else:
+            print('error, bad IP packet') 
       else:
         print("core: non ip packet")
         self.send_packet(packet_in, of.OFPP_FLOOD)
+      # rule for dropping all traffic from untrusted to server
+      fm = of.ofp_flow_mod()
+      fm.priority = 10
+      fm.hard_timeout = 45
+      fm.match.dl_type = pkt.ethernet.IP_TYPE
+      fm.match.nw_src = '172.16.10.100'
+      fm.match.nw_dst = '10.0.4.0/24'
+      self.connection.send(fm)
+      # rule for blocking all icmp traffic from untrusted to anyone
+      fm = of.ofp_flow_mod()
+      fm.priority = 8
+      fm.hard_timeout = 45
+      fm.match.dl_type = pkt.ethernet.IP_TYPE
+      fm.match.nw_proto = 1
+      fm.match.nw_src = '172.16.10.100'
+      self.connection.send(fm)
+      # rule for various destinations
+      for i in range(1,5):
+        fm = of.ofp_flow_mod()
+        fm.priority = 5
+        fm.hard_timeout = 45
+        fm.match.dl_type = pkt.ethernet.IP_TYPE
+        fm.match.nw_dst = '10.0.'+str(i)+'.0/24'
+        fm.actions.append(of.ofp_action_output(port=i))
+        self.connection.send(fm)
+      fm = of.ofp_flow_mod()
+      fm.hard_timeout = 45
+      fm.match.dl_type = pkt.ethernet.IP_TYPE
+      fm.match.nw_dst = '172.16.10.100'
+      fm.actions.append(of.ofp_action_output(port=5))
+      self.connection.send(fm)
+      fm = of.ofp_flow_mod()
+      fm.priority = 1
+      fm.hard_timeout = 40
+      fm.actions.append(of.ofp_action_output(port=of.OFPP_ALL))
+      self.connection.send(fm)
+
     #do something with data center switch
     else:
       #if comes in on port 100 send out port 1 and other way around
@@ -122,14 +159,12 @@ class Final (object):
       #install flow tables to data center switch that deal with this information
       fm = of.ofp_flow_mod()
       fm.priority = 5
-      fm.idle_timeout = 15
       fm.hard_timeout = 45
       fm.match.in_port = 100
       fm.actions.append(of.ofp_action_output(port=1))
       self.connection.send(fm)
       fm = of.ofp_flow_mod()
       fm.priority = 5
-      fm.idle_timeout = 15
       fm.hard_timeout = 45
       fm.match.in_port = 1
       fm.actions.append(of.ofp_action_output(port=100))
