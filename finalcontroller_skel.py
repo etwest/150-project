@@ -57,10 +57,8 @@ class Final (object):
     if switch_id <= 3:
       #If comes in on port 100 use port 1 to send or other way around
       if( port_on_switch == 100):
-        print "Floor switch_"+str(switch_id)+" got packet on port: 100. Sending out on port 1"
         self.send_packet(packet_in, 1)
       else:
-        print "Floor switch_"+str(switch_id)+" got packet on port: "+str(port_on_switch)+". Sending out on port 100"
         self.send_packet(packet_in, 100)
       # push the flow table for this information to the floor switch
       fm = of.ofp_flow_mod()
@@ -81,16 +79,13 @@ class Final (object):
       #ip packets need to be occasionally blocked and are routed to specific ports
       if packet.find('ipv4'):
         skip = False
-        print("core: ip packet")
         if str(packet.src) == '00:00:00:00:00:05':
           #This originated from the untrusted host so we block some traffic
           if str(packet.dst) == '00:00:00:00:00:04': #cannot send any ip to server
-            print 'Dropping packet from 05 bound for 04'
             msg = of.ofp_packet_out()
             self.connection.send(msg)
             skip = True
           if packet.find('icmp'): #untrusted cannot send icmp so block that
-            print 'Dropping icmp packet from 05'
             msg = of.ofp_packet_out()
             self.connection.send(msg)
             skip = True
@@ -108,7 +103,6 @@ class Final (object):
           else:
             print('error, bad IP packet') 
       else:
-        print("core: non ip packet")
         self.send_packet(packet_in, of.OFPP_FLOOD)
       # rule for dropping all traffic from untrusted to server
       fm = of.ofp_flow_mod()
@@ -151,10 +145,8 @@ class Final (object):
     else:
       #if comes in on port 100 send out port 1 and other way around
       if( port_on_switch == 100):
-        print "Data Center got packet on port: 100. Sending out on port 1"
         self.send_packet(packet_in, 1)
       else:
-        print "Data Center got packet on port: "+str(port_on_switch)+". Sending out on port 100"
         self.send_packet(packet_in, 100)
       #install flow tables to data center switch that deal with this information
       fm = of.ofp_flow_mod()
