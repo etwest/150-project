@@ -1,0 +1,22 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+\begin{document}
+\centerline{\large CMPE 150 Final Project}
+\vspace{2 mm} \centerline{Evan West \hspace{2 cm} 9 December 2018}
+\begin{itemize}
+\item{pingall and iperf:\\ \includegraphics[scale=.5]{image_1.png}\\
+pingall succeeds except in when the hosts and server try to reach untrusted host. This is because all ICMP traffic is blocked from untrusted host, including echo replies to ping requests. As such everyone else has no way of telling if they can reach untrusted or not because thier pings never come back.\\
+Iperf succeeds in all directions except for from untrusted to server and back. As iperf uses TCP messages which are not blocked for any pair except untrusted and server.
+}
+\newpage
+\item{dump-flows:\\ \includegraphics[scale=.5]{image_2.png}\\
+This screenshot shows all the flow table entries I used to build this topology. The design choices are explained below but as you can see most of the logic is within the core switch.
+}
+\item{
+	High level logic:\\
+	My logic for the controller is based on the realization that the only switch which actually needs to play the role of the firewall is the aptly named core switch. This is because all traffic which would be restricted by our rules is passed, in one way or another, through the core switch.\\
+	The first question the core switch asks about the traffic is if it's IP traffic from untrusted to server 1. If so drop it. Then it asks if it's ICMP traffic from untrusted to anyone in the system, if so drop it. Then with the firewall duties out of the way there are a number of rules which match destinations to output ports. Finally if the traffic is not IP it is flooded to the destination out of any port.\\
+	Within the other switches in the network the implemented rules simply tell the switch which port to send the traffic out on.
+}
+\end{itemize}
+\end{document}
